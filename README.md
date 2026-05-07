@@ -25,10 +25,12 @@ DISPLAY=:1 LIBGL_ALWAYS_SOFTWARE=1 ros2 run robot_state_publisher robot_state_pu
 DISPLAY=:1 LIBGL_ALWAYS_SOFTWARE=1 ros2 run rviz2 rviz2
 ```
 
-# Simulação no Gazebo:
+
+# Simulação no Gazebo com o mundo personalizado:
 ```bash
+colcon build --packages-select real_test_robot
 source install/setup.bash
-DISPLAY=:1 LIBGL_ALWAYS_SOFTWARE=1 ros2 launch real_test_robot rsp.launch.py
+DISPLAY=:1 LIBGL_ALWAYS_SOFTWARE=1 ros2 launch real_test_robot launch_sim.launch.py
 ```
 O modelo de mundo criado para a atividade segue a estrutura de um arquivo SDF, onde são definidos os elementos do ambiente, como luz, chão, linha preta e paredes. Cada elemento é representado por um modelo com suas propriedades específicas, como posição, tamanho e material. O arquivo SDF é utilizado para configurar o ambiente de simulação no Gazebo, permitindo a criação de cenários personalizados para testes e desenvolvimento de robôs.
 

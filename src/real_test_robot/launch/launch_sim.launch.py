@@ -1,11 +1,14 @@
 import os
-from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import  DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
+
 from ament_index_python.packages import get_package_share_directory
-import xacro
+
+
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
 
 def generate_launch_description():
     
@@ -53,18 +56,18 @@ def generate_launch_description():
     )
 
     # Bridge
-    bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
+    bridge_params = os.path.join(get_package_share_directory(package_name),'config','gz_bridge.yaml')
+    ros_gz_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
         arguments=[
-            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-            '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
-            '/tf@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
-            '/joint_states@sensor_msgs/msg/JointState@gz.msgs.Model',
-            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
-        ],
-        output='screen'
+            '--ros-args',
+            '-p',
+            f'config_file:={bridge_params}',
+        ]
     )
+
+
 
     return LaunchDescription([
         rsp,
@@ -72,5 +75,5 @@ def generate_launch_description():
         gazebo,
         spawn_robot,
         rviz,
-        bridge
+        ros_gz_bridge
     ])
