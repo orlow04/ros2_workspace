@@ -9,14 +9,15 @@ from launch_ros.actions import Node
 def generate_launch_description():
     package_name = 'real_test_robot'
 
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    world = LaunchConfiguration('world')
+
     rsp = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory(package_name), 'launch', 'rsp.launch.py'
         )]),
         launch_arguments={'use_sim_time': 'true', 'use_ros2_control': 'false'}.items()
     )
-
-    world = LaunchConfiguration('world')
 
     world_arg = DeclareLaunchArgument(
         'world',
@@ -34,12 +35,29 @@ def generate_launch_description():
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
-        arguments=[
-            '-name', 'real_test_robot',
-            '-topic', '/robot_description',
-            '-x', '0', '-y', '0', '-z', '0.1'
-        ],
+        arguments=['-name', 'real_test_robot', '-topic', '/robot_description',
+                   '-x', '0', '-y', '0', '-z', '0.1'],
         output='screen'
+    )
+
+    bridge_params = os.path.join(get_package_share_directory(package_name), 'config', 'gz_bridge.yaml')
+    ros_gz_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=['--ros-args', '-p', f'config_file:={bridge_params}']
+    )
+
+    slam = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('slam_toolbox'), 'launch', 'online_async_launch.py'
+        )]),
+        launch_arguments={
+            'slam_params_file': os.path.join(
+                get_package_share_directory(package_name),
+                'config', 'mapper_params_online_async.yaml'
+            ),
+            'use_sim_time': 'true'
+        }.items()
     )
 
     rviz = Node(
@@ -49,31 +67,12 @@ def generate_launch_description():
         additional_env={'DISPLAY': ':1', 'LIBGL_ALWAYS_SOFTWARE': '1'}
     )
 
-    bridge_params = os.path.join(
-        get_package_share_directory(package_name), 'config', 'gz_bridge.yaml'
-    )
-    ros_gz_bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        arguments=['--ros-args', '-p', f'config_file:={bridge_params}']
-    )
-
-    twist_mux_params = os.path.join(
-        get_package_share_directory(package_name), 'config', 'twist_mux.yaml'
-    )
-    twist_mux = Node(
-        package='twist_mux',
-        executable='twist_mux',
-        parameters=[twist_mux_params],
-        remappings=[('/cmd_vel_out', '/cmd_vel')]
-    )
-
     return LaunchDescription([
-        rsp,
         world_arg,
+        rsp,
         gazebo,
         spawn_robot,
-        rviz,
         ros_gz_bridge,
-        twist_mux,
+        slam,
+        rviz,
     ])

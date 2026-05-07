@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:include filename="inertia_macros.xacro" />
+
   <material name="white">
     <color rgba="1 1 1 1"/>
   </material>
@@ -16,7 +17,20 @@
   <material name="green">
     <color rgba="0.220 0.610 0.0244 1"/>
   </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
 
+  <!-- BASE FOOTPRINT  -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- BASE LINK -->
   <link name="base_link"/>
 
   <!-- CHASSIS -->
@@ -61,13 +75,13 @@
   <link name="left_wheel">
     <visual>
       <geometry>
-        <cylinder radius="0.04" length="0.05" />
+        <cylinder radius="0.04" length="0.05"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.5" />
+        <sphere radius="0.04"/>
       </geometry>
     </collision>
     <xacro:inertial_cylinder mass="0.1" length="0.04" radius="0.05">
@@ -91,13 +105,13 @@
   <link name="right_wheel">
     <visual>
       <geometry>
-        <cylinder radius="0.04" length="0.05" />
+        <cylinder radius="0.04" length="0.05"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.5" />
+        <sphere radius="0.04"/>
       </geometry>
     </collision>
     <xacro:inertial_cylinder mass="0.1" length="0.04" radius="0.05">
@@ -109,7 +123,7 @@
     <material>Gazebo/Black</material>
   </gazebo>
 
-  <!-- CASTER WHEEL-->
+  <!-- CASTER WHEEL -->
   <joint name="caster_wheel_joint" type="fixed">
     <parent link="chassis"/>
     <child link="caster_wheel"/>
@@ -138,4 +152,5 @@
     <mu1 value="0.001"/>
     <mu2 value="0.001"/>
   </gazebo>
+
 </robot>
